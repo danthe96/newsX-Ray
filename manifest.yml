@@ -1,0 +1,5 @@
+---
+applications:
+ - name: newsXRay
+   random-route: true
+   memory: 1536M
