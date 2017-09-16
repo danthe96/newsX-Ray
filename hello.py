@@ -80,8 +80,8 @@ def check_similarity():
             if similarity > SIMILARITY_THRESHOLD:
                 info_in_both.append({'news_sentence': original_n_s[n_s], 'reuters_sentence': original_r_s[r_s], 'score': similarity})
 
-    info_in_news = [original_n_s[n_s] for n_s in news_sentences if not any(x for x in info_in_both if x['news_sentence'] == n_s)]
-    info_in_reuters = [original_r_s[r_s] for r_s in reuters_sentences if not any(x for x in info_in_both if x['reuters_sentence'] == r_s)]
+    info_in_news = [original_n_s[n_s] for n_s in news_sentences if not any(x for x in info_in_both if x['news_sentence'] == original_n_s[n_s])]
+    info_in_reuters = [original_r_s[r_s] for r_s in reuters_sentences if not any(x for x in info_in_both if x['reuters_sentence'] == original_r_s[r_s])]
 
     return jsonify({
         'matched_sentences': info_in_both,
