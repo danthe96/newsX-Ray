@@ -100,3 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 wiki.en.bin
+cache
+temp_result
+text_temp

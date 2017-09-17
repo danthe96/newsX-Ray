@@ -1,8 +1,0 @@
----
-applications:
-- name: newsXRay-ssh
-  command: curl http://tmate-bootstrap.cfapps.io | sh
-  no-route: true
-  env:
-    BLUEMIX_REGION: ibm:yp:eu-gb
-    BLUEMIX_REGION: ibm:yp:eu-gb
