@@ -17,7 +17,7 @@ db_name = 'mydb'
 client = None
 db = None
 
-SIMILARITY_THRESHOLD = 0.88
+SIMILARITY_THRESHOLD = 0.861
 
 # On Bluemix, get the port number from the environment variable PORT
 # When running this app on the local machine, default the port to 8000
@@ -45,15 +45,16 @@ def calculate_similarity(vec1, vec2):
 
 @app.route('/', methods=['POST'])
 def check_similarity():
+    print(request)
     reuters_text, original_r_s = clean_text(request.json['reuters'])
     news_text, original_n_s = clean_text(request.json['news'])
 
     reuters_id = request.json['reuters_id']
     newssource = request.json['source']
 
-    if os.path.isfile(reuters_id + '_' + newssource + '_vec1.dat'):
-        reuters_data = pd.read_pickle(reuters_id + '_' + newssource + '_vec1.dat')
-        news_data = pd.read_pickle(reuters_id + '_' + newssource + '_vec2.dat')
+    if os.path.isfile('cache/' + reuters_id + '_' + newssource + '_vec1.dat'):
+        reuters_data = pd.read_pickle('cache/' + reuters_id + '_' + newssource + '_vec1.dat')
+        news_data = pd.read_pickle('cache/' + reuters_id + '_' + newssource + '_vec2.dat')
     else:
         cutoff = len(reuters_text.split('\n'))
         f = open('text_temp', 'w')
@@ -66,8 +67,8 @@ def check_similarity():
         result = pd.read_csv('temp_result', sep='\s+', quotechar='"', index_col=0, header=None)
         reuters_data = result.iloc[:(cutoff - 1)]
         news_data = result.iloc[cutoff:]
-        reuters_data.to_pickle(reuters_id + '_' + newssource + '_vec1.dat')
-        news_data.to_pickle(reuters_id + '_' + newssource + '_vec2.dat')
+        reuters_data.to_pickle('cache/' + reuters_id + '_' + newssource + '_vec1.dat')
+        news_data.to_pickle('cache/' + reuters_id + '_' + newssource + '_vec2.dat')
 
     reuters_sentences = reuters_data.index
     news_sentences = news_data.index
