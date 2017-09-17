@@ -1,137 +1,32 @@
-# Getting Started with Python on Bluemix
+# News X-Ray
 
-To get started, we'll take you through a sample Python Flask app, help you set up a development environment, deploy to Bluemix and add a Cloudant database.
+This is the backend for News X-Ray, a Chrome extension identifying agency reports that were used for news articles. That way, you know which information is well-founded and what might be controversial. Through analysis we can show biases differ between news sources.
+News X-Ray was created by [Daniel Thevessen](https://github.com/danthe96), [Carl Goedecken](https://github.com/MasterCarl) and [Nils Strelow](https://github.com/nstrelow) at [HackZurich 2017](hackzurich.com) within just under two days. 
 
-## Prerequisites
+## Inspiration
 
-You'll need the following:
-* [Bluemix account](https://console.ng.bluemix.net/registration/)
-* [Cloud Foundry CLI](https://github.com/cloudfoundry/cli#downloads)
-* [Git](https://git-scm.com/downloads)
-* [Python](https://www.python.org/downloads/)
+We all read news articles in some shape or form almost everyday. But in times of fake news and clickbait, how can you know who to trust? No matter what source you're reading, news should be transparent. That's why we want to show what information is behind a news article, enabling us to show what the news source might have added as well. That way, you can better identify the biases of individual news sources, and check if this is a trend for this source.
 
-## 1. Clone the sample app
+## What it does
 
-Now you're ready to start working with the app. Clone the repo and change to the directory where the sample app is located.
-  ```
-git clone https://github.com/IBM-Bluemix/get-started-python
-cd get-started-python
-  ```
+We have developed a browser extension that looks at the article you are currently reading, and identifies a related report from a news agency such as Reuters where the basic information and facts come from. A backend finds the parts of the article that were derived from this report - even if the author has rewritten them completely - through Natural Language Processing. The extension highlights the similarities and saves sentiment trends to show how news sources differ. 
 
-  Peruse the files in the *get-started-python* directory to familiarize yourself with the contents.
+## How we built it
 
-## 2. Run the app locally
+We identify related Reuter reports by finding keywords with IBM Bluemix and searching recent news history through the Reuters API. Once it has found one, the extensions communicates with a Python Flask backend, which runs semantic sentence analysis on both articles to find similar meaning. We do so by generating sentence vectors with Facebook's fasttext and a model pre-trained on the English language. The extension takes this information to highlight things, and run 
 
-Install the dependencies listed in the [requirements.txt ![External link icon](../../icons/launch-glyph.svg "External link icon")](https://pip.readthedocs.io/en/stable/user_guide/#requirements-files) file to be able to run the app locally.
+## Challenges we ran into
 
-You can optionally use a [virtual environment ![External link icon](../../icons/launch-glyph.svg "External link icon")](https://packaging.python.org/installing/#creating-and-using-virtual-environments) to avoid having these dependencies clash with those of other Python projects or your operating system.
-  ```
-pip install -r requirements.txt
-  ```
+Semantic sentence similarity is far from easy and still an open topic of research! There is no clear way of extracting meaning from whole sentences, so we had to try out many things. We even got to the limit, of what free hosting vouchers could offer. With a model larger than 10 GB, we were lucky to have a Macbook with 16 GB of RAM.
 
-Run the app.
-  ```
-python hello.py
-  ```
+## Accomplishments that we're proud of
 
- View your app at: http://localhost:8000
+We're proud to have found a solution that not only works, but can also provide great insight on real articles. And, despite getting little sleep, we have all made it through HackZurich in one piece!
 
-## 3. Prepare the app for deployment
+## What we learned
 
-To deploy to {{site.data.keyword.Bluemix_notm}}, it can be helpful to set up a manifest.yml file. One is provided for you with the sample. Take a moment to look at it.
+There is still so much AI can do for us, that we haven't even begun to think about!
 
-The manifest.yml includes basic information about your app, such as the name, how much memory to allocate for each instance and the route. In this manifest.yml **random-route: true** generates a random route for your app to prevent your route from colliding with others.  You can replace **random-route: true** with **host: myChosenHostName**, supplying a host name of your choice. [Learn more...](https://console.bluemix.net/docs/manageapps/depapps.html#appmanifest)
- ```
- applications:
- - name: GetStartedPython
-   random-route: true
-   memory: 128M
- ```
+## What's next for News X-Ray
 
-## 4. Deploy the app
-
-You can use the Cloud Foundry CLI to deploy apps.
-
-Choose your API endpoint
-   ```
-cf api <API-endpoint>
-   ```
-
-Replace the *API-endpoint* in the command with an API endpoint from the following list.
-
-|URL                             |Region          |
-|:-------------------------------|:---------------|
-| https://api.ng.bluemix.net     | US South       |
-| https://api.eu-de.bluemix.net  | Germany        |
-| https://api.eu-gb.bluemix.net  | United Kingdom |
-| https://api.au-syd.bluemix.net | Sydney         |
-
-Login to your {{site.data.keyword.Bluemix_notm}} account
-
-  ```
-cf login
-  ```
-
-From within the *get-started-python* directory push your app to {{site.data.keyword.Bluemix_notm}}
-  ```
-cf push
-  ```
-
-This can take a minute. If there is an error in the deployment process you can use the command `cf logs <Your-App-Name> --recent` to troubleshoot.
-
-When deployment completes you should see a message indicating that your app is running.  View your app at the URL listed in the output of the push command.  You can also issue the
-  ```
-cf apps
-  ```
-  command to view your apps status and see the URL.
-
-## 5. Add a database
-
-Next, we'll add a NoSQL database to this application and set up the application so that it can run locally and on {{site.data.keyword.Bluemix_notm}}.
-
-1. Log in to {{site.data.keyword.Bluemix_notm}} in your Browser. Browse to the `Dashboard`. Select your application by clicking on its name in the `Name` column.
-2. Click on `Connections` then `Connect new`.
-2. In the `Data & Analytics` section, select `Cloudant NoSQL DB` and `Create` the service.
-3. Select `Restage` when prompted. {{site.data.keyword.Bluemix_notm}} will restart your application and provide the database credentials to your application using the `VCAP_SERVICES` environment variable. This environment variable is only available to the application when it is running on {{site.data.keyword.Bluemix_notm}}.
-
-Environment variables enable you to separate deployment settings from your source code. For example, instead of hardcoding a database password, you can store this in an environment variable which you reference in your source code. [Learn more...](/docs/manageapps/depapps.html#app_env)
-
-## 6. Use the database
-
-We're now going to update your local code to point to this database. We'll create a json file that will store the credentials for the services the application will use. This file will get used ONLY when the application is running locally. When running in {{site.data.keyword.Bluemix_notm}}, the credentials will be read from the VCAP_SERVICES environment variable.
-
-1. Create a file called `vcap-local.json` in the `get-started-python` directory with the following content:
-  ```
-  {
-    "services": {
-      "cloudantNoSQLDB": [
-        {
-          "credentials": {
-            "username":"CLOUDANT_DATABASE_USERNAME",
-            "password":"CLOUDANT_DATABASE_PASSWORD",
-            "host":"CLOUDANT_DATABASE_HOST"
-          },
-          "label": "cloudantNoSQLDB"
-        }
-      ]
-    }
-  }
-  ```
-
-2. Back in the {{site.data.keyword.Bluemix_notm}} UI, select your App -> Connections -> Cloudant -> View Credentials
-
-3. Copy and paste the `username`, `password`, and `host` from the credentials to the same fields of the `vcap-local.json` file replacing **CLOUDANT_DATABASE_USERNAME**, **CLOUDANT_DATABASE_PASSWORD**, and **CLOUDANT_DATABASE_URL**.
-
-4. Run your application locally.
-  ```
-python hello.py
-  ```
-
-  View your app at: http://localhost:8000. Any names you enter into the app will now get added to the database.
-
-5. Make any changes you want and re-deploy to {{site.data.keyword.Bluemix_notm}}!
-  ```
-cf push
-  ```
-
-  View your app at the URL listed in the output of the push command, for example, *myUrl.mybluemix.net*.
+Decomposing articles using data is great, but the data generated from that itself can be used as well. It would be great to collect more data and explore what we can do with that.
