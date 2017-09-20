@@ -1,6 +1,6 @@
 # News X-Ray
 
-This is the backend (frontend [here](https://github.com/danthe96/newsX-Ray)) for News X-Ray, a Chrome extension identifying agency reports that were used for news articles. That way, you know which information is well-founded and what might be controversial. Through analysis we can show biases differ between news sources.
+This is the backend (frontend [here](https://github.com/danthe96/newsX-Ray-frontend)) for News X-Ray, a Chrome extension identifying agency reports that were used for news articles. That way, you know which information is well-founded and what might be controversial. Through analysis we can show biases differ between news sources.
 News X-Ray was created by [Daniel Thevessen](https://github.com/danthe96), [Carl Goedecken](https://github.com/MasterCarl) and [Nils Strelow](https://github.com/nstrelow) at [HackZurich 2017](hackzurich.com) within just under two days. 
 
 ## Inspiration
