@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import atexit
 import os
 import json
 import nltk
@@ -13,26 +12,24 @@ app = Flask(__name__)
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
-db_name = 'mydb'
-client = None
-db = None
-
 SIMILARITY_THRESHOLD = 0.861
 
-# On Bluemix, get the port number from the environment variable PORT
-# When running this app on the local machine, default the port to 8000
+
 port = int(os.getenv('PORT', 8000))
-stop = set(stopwords.words('english'))
+english_stopwords = set(stopwords.words('english'))
 
 
 def clean_text(text):
+    # Sentences are preprocessed and simplified for analysis,
+    # but full sentences should be returned to the Chrome extension
     original_mapping = {}
+
     text = text.replace('<p>', '').replace('</p>', '').replace('<p/>', '')
     sentences = tokenizer.tokenize(text)
     basic_sentences = []
     for sentence in sentences:
         sentence2 = sentence.replace('\\n', ' ').replace('\\"', '\'').replace('\"', '\'')
-        sentence2 = ' '.join([i for i in sentence2.lower().split() if i not in stop])
+        sentence2 = ' '.join([i for i in sentence2.lower().split() if i not in english_stopword])
         basic_sentences.append(sentence2)
         original_mapping[sentence2] = sentence
 
@@ -61,7 +58,10 @@ def check_similarity():
         f.write(reuters_text)
         f.write(news_text)
         f.close()
-        p = subprocess.Popen('fasttext/fasttext print-sentence-vectors fasttext/models/wiki.en.bin < text_temp > temp_result', shell=True)
+        # Call fasttext with pretrained model. Short solution that loads from SSD everytime, but should be used with
+        # Popen.communicate in non-Hackathon environment
+        p = subprocess.Popen('fasttext/fasttext print-sentence-vectors fasttext/models/wiki.en.bin < text_temp > temp_result',
+                             shell=True)
         p.wait()
 
         result = pd.read_csv('temp_result', sep='\s+', quotechar='"', index_col=0, header=None)
@@ -79,10 +79,17 @@ def check_similarity():
             similarity = calculate_similarity(reuters_data.loc[r_s], news_data.loc[n_s])
 
             if similarity > SIMILARITY_THRESHOLD:
-                info_in_both.append({'news_sentence': original_n_s[n_s], 'reuters_sentence': original_r_s[r_s], 'score': similarity})
+                info_in_both.append({
+                    'news_sentence': original_n_s[n_s],  # Sentence by news outlet
+                    'reuters_sentence': original_r_s[r_s],  # Sentence by news agency
+                    'score': similarity})
 
-    info_in_news = [original_n_s[n_s] for n_s in news_sentences if not any(x for x in info_in_both if x['news_sentence'] == original_n_s[n_s])]
-    info_in_reuters = [original_r_s[r_s] for r_s in reuters_sentences if not any(x for x in info_in_both if x['reuters_sentence'] == original_r_s[r_s])]
+    # Sentences most likely written by news outlet itself
+    info_in_news = [original_n_s[n_s] for n_s in news_sentences
+                    if not any(x for x in info_in_both if x['news_sentence'] == original_n_s[n_s])]
+    # Sentences omitted from news agency report
+    info_in_reuters = [original_r_s[r_s] for r_s in reuters_sentences
+                       if not any(x for x in info_in_both if x['reuters_sentence'] == original_r_s[r_s])]
 
     return jsonify({
         'matched_sentences': info_in_both,
