@@ -1,5 +1,7 @@
 # News X-Ray
 
+![The tool in action](documentation/1.png)
+
 This is the backend (frontend [here](https://github.com/danthe96/newsX-Ray-frontend)) for News X-Ray, a Chrome extension identifying agency reports that were used for news articles. That way, you know which information is well-founded and what might be controversial. Through analysis we can show biases differ between news sources.
 News X-Ray was created by [Daniel Thevessen](https://github.com/danthe96), [Carl Goedecken](https://github.com/MasterCarl) and [Nils Strelow](https://github.com/nstrelow) at [HackZurich 2017](hackzurich.com) within just under two days. 
 
@@ -11,13 +13,17 @@ We all read news articles in some shape or form almost everyday. But in times of
 
 We have developed a browser extension that looks at the article you are currently reading, and identifies a related report from a news agency such as Reuters where the basic information and facts come from. A backend finds the parts of the article that were derived from this report - even if the author has rewritten them completely - through Natural Language Processing. The extension highlights the similarities and saves sentiment trends to show how news sources differ. 
 
+![Results of the analysis](documentation/2.png)
+
+![Omissions and sentiment analysis](documentation/3.png)
+
 ## How we built it
 
-We identify related Reuter reports by finding keywords with IBM Bluemix and searching recent news history through the Reuters API. Once it has found one, the extensions communicates with a Python Flask backend, which runs semantic sentence analysis on both articles to find similar meaning. We do so by generating sentence vectors with Facebook's fasttext and a model pre-trained on the English language. The extension takes this information to highlight things, and run 
+We identify related Reuter reports by finding keywords with IBM Bluemix and searching recent news history through the Reuters API. Once it has found one, the extensions communicates with a Python Flask backend, which runs semantic sentence analysis on both articles to find similar meaning. We do so by generating sentence vectors with Facebook's fasttext and a model pre-trained on the English language. The extension takes this information to highlight things, and run sentiment analysis on the parts written by the news outlet itself.
 
 ## Challenges we ran into
 
-Semantic sentence similarity is far from easy and still an open topic of research! There is no clear way of extracting meaning from whole sentences, so we had to try out many things. We even got to the limit, of what free hosting vouchers could offer. With a model larger than 10 GB, we were lucky to have a Macbook with 16 GB of RAM.
+Semantic sentence similarity is far from easy and still an open topic of research! There is no clear way of extracting meaning from whole sentences, so we had to try out many things. We even got to the limit of what free hosting vouchers could offer. With a model larger than 10 GB, we were lucky to have a Macbook with 16 GB of RAM.
 
 ## Accomplishments that we're proud of
 
